@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tool-pod
+spec:
+  containers:
+  - args:
+    - while true; do sleep 30; done;
+    command:
+    - /bin/bash
+    - -c
+    - --
+    image: debian
+    name: tool-pod
+    volumeMounts:
+    - mountPath: /volume/output
+      name: output-volume
+  volumes:
+  - name: output-volume
+    persistentVolumeClaim:
+      claimName: pvc-airbnb
+  restartPolicy: Never

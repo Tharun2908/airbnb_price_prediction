@@ -1,0 +1,15 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: airbnb-nn-job
+  namespace: thme5878
+spec:
+  template:
+    metadata:
+      labels:
+        app: airbnb-nn-job
+    spec:
+      containers:
+      - name: airbnb-container
+        image: john293/airbnb-nn:latest
+      restartPolicy: Never
