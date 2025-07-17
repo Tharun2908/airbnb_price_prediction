@@ -1,47 +1,99 @@
-# airbnb_price_prediction
-Predict Airbnb listing prices using 2 models
+# Airbnb Price Prediction (Berlin)
 
-Project Overview:
-This project aims to predict Airbnb listing prices in Berlin using machine learning models. We curated a non-standard dataset, cleaned and processed it, engineered useful features, trained multiple models (including a neural network), and deployed the final model on our university's Kubernetes cluster.
+This project builds a machine learning pipeline to predict Airbnb listing prices in Berlin using various regression techniques, including a neural network. We followed an end-to-end data science workflow — from data cleaning to model deployment.
 
-Dataset:
+## Dataset
 
-Source: Inside Airbnb (Berlin)
-Size: ~14,000 rows originally
-Final after cleaning: ~7,000 rows
-Features: Listing details like room type, property type, number of bedrooms, distance to city center, review scores, etc.
+- **Source:** [Inside Airbnb](http://insideairbnb.com/get-the-data/)
+- **City:** Berlin
+- **Size:** ~29 MB
+- **Preprocessing:**
+  - Removed listings with missing prices
+  - Cleaned columns with inconsistent types
+  - Encoded categorical features (e.g., room type, neighborhood)
+  - Engineered new feature: distance from city center
 
-Preprocessing & Feature Engineering:
+---
 
-Removed listings with missing price and essential fields
-Converted price from string to numeric and removed outliers (e.g., prices > 1000)
-Imputed missing bedrooms with 1 where it was 0
-Engineered distance_to_center using latitude/longitude
-One-hot encoded categorical variables:
-room_type (4 classes)
-neighbourhood_cleansed (52 → grouped)
-property_type (58 → grouped)
-Final dataset: 32 features
+## Feature Engineering
 
- Modeling & Evaluation:
- We trained and compared the following models:
+- Imputed missing values
+- Converted categorical columns to one-hot encoding
+- Merged rare categories into 'Other'
+- Engineered `distance_to_center` from latitude & longitude
+- Normalized numerical features (for neural network)
 
-Model	                        MAE	    RMSE	  R²
-Naive Baseline	                56.93	5077.60	 0.00
-Linear Regression	            36.84	49.35	 0.52
-Random Forest (Tuned)	        31.72	43.40	 0.63
-Neural Network (TF)	            40.72	67.19	 0.56
+---
 
-Why Random Forest Performed Best:
+## Baselines & Models
 
-Handles non-linearities in features like reviews, availability, and amenities
-Robust to outliers and noise
-Requires less feature scaling compared to neural networks
-Neural network may have underperformed due to limited data and simple architecture
+| Model             | MAE   | RMSE  | R²     |
+|------------------|-------|-------|--------|
+| Naive Baseline   | ~56.9 | ~5077 | ~0.00  |
+| Linear Regression| ~36.8 | ~49.3 | ~0.52  |
+| Random Forest     | ~31.7 | ~43.4 | ~0.63  |
+| Neural Network    | ~40.7 | ~67.1 | ~0.56  |
 
-Deployment on College Kubernetes Cluster:
+---
 
-Converted the final notebook to .py script using nbconvert
-Built a custom Docker image including script and data
-Pushed Docker image to registry and created YAML job
-Verified results by fetching logs from the job
+## Models Used
+
+### 1. Naive Baseline
+Predicted the **mean price** for all listings. Used as a reference point.
+
+### 2. Linear Regression
+Basic linear model with one-hot and numerical features. Captures general trends, but limited by linearity.
+
+### 3. Random Forest Regressor
+Ensemble of decision trees, handled nonlinear relationships well. Performed best overall.
+
+### 4. Neural Network (TensorFlow)
+Feedforward model with ReLU activations and EarlyStopping. Performance was decent but lower than Random Forest.
+
+---
+
+## Experiments & Setup
+
+- Split: 80% Train, 20% Test
+- Metrics: MAE, RMSE, R²
+- Hyperparameter tuning via `GridSearchCV` (for Random Forest)
+- Neural Network tuned using `EarlyStopping` on validation loss
+
+---
+
+## Remote Cluster Execution
+
+- Dockerized the neural network script
+- Created Kubernetes Job YAML (`airbnb-nn-job.yaml`)
+- Submitted and executed on college cluster using `kubectl`
+
+---
+
+##  Key Challenges
+
+- Dealing with many categorical features with high cardinality
+- Outliers in price (e.g., listings with 50000€) skewing model performance
+- Understanding and executing on Kubernetes-based remote workflow
+
+---
+
+## Learnings
+
+- Importance of preprocessing and feature engineering
+- How to compare and interpret regression metrics
+- Practical experience with version control, collaboration, and cluster deployment
+
+---
+
+## How to Reproduce
+
+1. Clone the repository  
+2. Install dependencies: `pip install -r requirements.txt`
+3. Run notebooks inside `/notebooks/` folder
+4. Docker + Kubernetes deployment instructions in `yaml_files/` and `Dockerfile`
+
+---
+
+
+
+
